@@ -17,6 +17,7 @@ void main(string[] args) {
   infile.readText.parseCSV.processData.printResult(outfile);
 }
 
+/// Actually, it is possible to do all the work using `std.csv` but it wouldn't be fair
 string[][] parseCSV(string data, string delim = ",") {
   return data.split('\n').map!(line => line.split(delim)).filter!(el => !!el).array;
 }
