@@ -24,7 +24,7 @@ def main(array):
 def output(intoFile, array) :
     with open(intoFile, "a") as output :
         for x in range(len(array)) :
-            output.write(array[x][0] + " "+ str(array[x][-1]) + "\n")
+            output.write(array[x][0] + ","+ str(array[x][-1]) + "\n")
 
 parsed = parseFile(input_file)
 main(parsed)
