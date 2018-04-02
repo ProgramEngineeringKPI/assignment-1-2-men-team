@@ -29,13 +29,12 @@ int points(int[] score) {
 }
 
 int[string] processData(string[][] data) {
-  int[string] result;
-  foreach (line; data) {
-    result[line[0]] = line[1 .. $].map!(pair => (
+  return data.fold!((res, line) {
+    res[line[0]] = line[1 .. $].map!(pair => (
       pair.split(':').map!(to!int).array
     )).fold!((acc, score) => acc + points(score))(0);
-  }
-  return result;
+    return res;
+  })( (int[string]).init );
 }
 
 void printResult(int[string] data, string outfile, string delim = ",") {
