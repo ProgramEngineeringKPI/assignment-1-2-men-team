@@ -3,6 +3,7 @@ import std.array : array, join, split;
 import std.conv : to;
 import std.file : readText, write;
 import std.path : sep = dirSeparator;
+import std.stdio : stderr, writeln;
 
 enum Points : int {
   win = 3,
@@ -14,9 +15,14 @@ void main(string[] args) {
   immutable infile = args[1];
   immutable outfile = (infile.split(sep)[0 .. $ - 1] ~ "result.csv").join(sep);
 
-  infile.readText.parseCSV.processData.printResult(outfile);
+  try {
+    infile.readText.parseCSV.processData.printResult(outfile);
+  } catch (Exception e) {
+    stderr.writeln("Exception has occured: ", e.msg);
+  }
 }
 
+/// Actually, it is possible to do all the work using `std.csv` but it wouldn't be fair
 string[][] parseCSV(string data, string delim = ",") {
   return data.split('\n').map!(line => line.split(delim)).filter!(el => !!el).array;
 }
@@ -27,14 +33,32 @@ int points(int[] score) {
   return Points.lose;
 }
 
-int[string] processData(string[][] data) {
-  int[string] result;
-  foreach (line; data) {
-    result[line[0]] = line[1 .. $].map!(pair => (
-      pair.split(':').map!(to!int).array
-    )).fold!((acc, score) => acc + points(score))(0);
+bool validate(string pair, out int[] result) {
+  try {
+    string[] paired = pair.split(':');
+    if (paired.length == 0 || paired[0].length == 0 || paired[1].length == 0)
+      return false;
+
+    int[] nums = paired.map!(to!int).array;
+    if (nums[0] < 0 || nums[1] < 0) return false;
+
+    result = nums;
+  } catch (Throwable) {
+    return false;
   }
-  return result;
+  return true;
+}
+
+int[string] processData(string[][] data) {
+  return data.fold!((res, line) {
+    res[line[0]] = line[1 .. $].map!((pair) {
+      int[] nums;
+      if (!validate(pair, nums))
+        throw new Exception("Invalid input: <" ~ pair ~ "> in 'validate' function");
+      return nums;
+    }).fold!((acc, score) => acc + points(score))(0);
+    return res;
+  })( (int[string]).init );
 }
 
 void printResult(int[string] data, string outfile, string delim = ",") {
