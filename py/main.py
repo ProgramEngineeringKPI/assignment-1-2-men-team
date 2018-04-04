@@ -16,16 +16,35 @@ def score(s1,s2):
     return 0
 
 def main(array):
+    failed = []
     for i in range(len(array)):
         array[i].append(0)
-        for j in range(1,11):
-            array[i][-1] += score(array[i][j][0],array[i][j][1])
+        for j in range(1,len(array[i])-1):
+            check = valid(array[i][j][0],array[i][j][1])
+            if check == False:
+                failed.append(array[i][j])
+            else:
+                array[i][-1] += score(array[i][j][0],array[i][j][1])
+    return failed
 
 def output(intoFile, array) :
     with open(intoFile, "a") as output :
         for x in range(len(array)) :
             output.write(array[x][0] + ","+ str(array[x][-1]) + "\n")
 
+def valid(s1,s2):
+    try:
+        s1_valid = int(s1)
+        s2_valid = int(s2)
+        if(s1_valid < 0 or s2_valid < 0):
+            print "Exception! Only numbers available."
+            return False
+        return True
+    except ValueError:
+        print "Exception! Only numbers available."
+        return False
+
 parsed = parseFile(input_file)
-main(parsed)
+failed = main(parsed)
+print(failed)
 output(into_file, parsed)
