@@ -3,7 +3,7 @@ import std.array : array, join, split;
 import std.conv : to;
 import std.file : readText, write;
 import std.path : sep = dirSeparator;
-import std.stdio : stderr, writeln;
+import std.stdio : stderr;
 
 enum Points : int {
   win = 3,
@@ -33,7 +33,7 @@ int points(int[] score) {
   return Points.lose;
 }
 
-bool validate(string pair, out int[] result) {
+bool tryValidate(string pair, out int[] result) {
   try {
     string[] paired = pair.split(':');
     if (paired.length == 0 || paired[0].length == 0 || paired[1].length == 0)
@@ -53,7 +53,7 @@ int[string] processData(string[][] data) {
   return data.fold!((res, line) {
     res[line[0]] = line[1 .. $].map!((pair) {
       int[] nums;
-      if (!validate(pair, nums))
+      if (!tryValidate(pair, nums))
         throw new Exception("Invalid input: <" ~ pair ~ "> in 'validate' function");
       return nums;
     }).fold!((acc, score) => acc + points(score))(0);
